@@ -11,7 +11,6 @@ import { UserDocument, UserSchema } from './models/user.schema';
     DatabaseModule.forFeature([
       { name: UserDocument.name, schema: UserSchema },
     ]),
-    LoggerModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],
