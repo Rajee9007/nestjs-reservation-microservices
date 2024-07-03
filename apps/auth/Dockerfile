@@ -30,8 +30,8 @@ COPY yarn.lock ./
 
 RUN npm install -g yarn --force
 
-RUN yarn install --prod
+RUN yarn install
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["node", "dist/apps/auth/main.js"]
+CMD ["node", "dist/apps/auth/main"]
