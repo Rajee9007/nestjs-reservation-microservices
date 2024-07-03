@@ -3,6 +3,7 @@ import { NotificationsModule } from './notifications.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 import { Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(NotificationsModule);
@@ -17,6 +18,8 @@ async function bootstrap() {
   });
 
   app.useLogger(app.get(Logger));
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.startAllMicroservices();
 }
