@@ -1,31 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationDocument } from './models/reservation.schema';
+import { PAYMENTS_SERVICE } from '@app/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { map } from 'rxjs';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     private readonly reservationsRepository: ReservationsRepository,
+    @Inject(PAYMENTS_SERVICE) private readonly paymentsService: ClientProxy,
   ) {}
 
-  create(
-    createReservationDto: CreateReservationDto,
-    userId: string,
-  ): Promise<ReservationDocument> {
-    return this.reservationsRepository.create({
-      ...createReservationDto,
-      timestamp: new Date(),
-      userId,
-    });
+  async create(createReservationDto: CreateReservationDto, userId: string) {
+    return this.paymentsService
+      .send('create_charge', createReservationDto.charge)
+      .pipe(
+        map(async (res) => {
+          return this.reservationsRepository.create({
+            ...createReservationDto,
+            timestamp: new Date(),
+            userId,
+            invoiceId: res.id,
+          });
+        }),
+      );
   }
 
-  findAll(): Promise<ReservationDocument[]> {
+  async findAll(): Promise<ReservationDocument[]> {
     return this.reservationsRepository.find({});
   }
 
-  findOne(_id: string): Promise<ReservationDocument> {
+  async findOne(_id: string): Promise<ReservationDocument> {
     return this.reservationsRepository.findOne({ _id });
   }
 
