@@ -7,7 +7,7 @@ import { DatabaseModule, UserDocument, UserSchema } from '@app/common';
 @Module({
   imports: [
     DatabaseModule,
-    DatabaseModule.forFeature([
+    DatabaseModule.forFeatureMongo([
       { name: UserDocument.name, schema: UserSchema },
     ]),
   ],

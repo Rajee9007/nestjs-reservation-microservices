@@ -20,7 +20,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     DatabaseModule,
-    DatabaseModule.forFeature([
+    DatabaseModule.forFeatureMongo([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
     LoggerModule,
