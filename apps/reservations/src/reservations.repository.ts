@@ -1,4 +1,7 @@
-import { AbstractRepository, AbstractTypeOrmRepository } from '@app/common';
+import {
+  AbstractMongooseRepository,
+  AbstractTypeOrmRepository,
+} from '@app/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { ReservationDocument } from './models/reservation.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()
-export class ReservationsRepository extends AbstractRepository<ReservationDocument> {
+export class ReservationsRepository extends AbstractMongooseRepository<ReservationDocument> {
   protected readonly logger = new Logger(ReservationsRepository.name);
 
   constructor(
