@@ -1,17 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { ReservationsRepository } from './reservations.repository';
+import {
+  ReservationsRepository,
+  ReservationsTypeOrmRepository,
+} from './reservations.repository';
 import { ReservationDocument } from './models/reservation.schema';
 import { PAYMENTS_SERVICE, UserDto } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { map } from 'rxjs';
+import { ReservationEntity } from './models/reservation.entity';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     private readonly reservationsRepository: ReservationsRepository,
     @Inject(PAYMENTS_SERVICE) private readonly paymentsService: ClientProxy,
+    private readonly reservationsTypeOrmRepository: ReservationsTypeOrmRepository,
   ) {}
 
   async create(
@@ -25,6 +30,17 @@ export class ReservationsService {
       })
       .pipe(
         map(async (res) => {
+          // Typeorm
+          const reservationTypeOrm = new ReservationEntity({
+            ...createReservationDto,
+            timestamp: new Date(),
+            userId,
+            invoiceId: res.id,
+          });
+
+          await this.reservationsTypeOrmRepository.create(reservationTypeOrm);
+
+          // Mongoose
           return this.reservationsRepository.create({
             ...createReservationDto,
             timestamp: new Date(),

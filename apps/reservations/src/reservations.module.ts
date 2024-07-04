@@ -3,12 +3,16 @@ import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import {
   AUTH_SERVICE,
-  DatabaseModule,
+  DatabaseMongoModule,
+  DatabaseTypeOrmlModule,
   HealthModule,
   LoggerModule,
   PAYMENTS_SERVICE,
 } from '@app/common';
-import { ReservationsRepository } from './reservations.repository';
+import {
+  ReservationsRepository,
+  ReservationsTypeOrmRepository,
+} from './reservations.repository';
 import {
   ReservationDocument,
   ReservationSchema,
@@ -16,13 +20,16 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ReservationEntity } from './models/reservation.entity';
 
 @Module({
   imports: [
-    DatabaseModule,
-    DatabaseModule.forFeatureMongo([
+    DatabaseMongoModule,
+    DatabaseMongoModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
+    DatabaseTypeOrmlModule,
+    DatabaseTypeOrmlModule.forFeature([ReservationEntity]),
     LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -62,6 +69,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     HealthModule,
   ],
   controllers: [ReservationsController],
-  providers: [ReservationsService, ReservationsRepository],
+  providers: [
+    ReservationsService,
+    ReservationsRepository,
+    ReservationsTypeOrmRepository,
+  ],
 })
 export class ReservationsModule {}
