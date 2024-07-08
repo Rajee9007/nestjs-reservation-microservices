@@ -1,0 +1,16 @@
+{
+	"name": "@sleepr/reservations",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"scripts": {
+		"migrate": "dotenv -e .env.local -- yarn prisma migrate dev"
+	},
+	"dependencies": {
+		"@prisma/client": "^5.16.1",
+		"prisma": "^5.16.1"
+	},
+	"devDependencies": {
+		"dotenv-cli": "^7.4.2"
+	}
+}

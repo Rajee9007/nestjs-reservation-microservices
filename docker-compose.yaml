@@ -57,6 +57,12 @@ services:
       - "3004:3004"
   mongo:
     image: mongo
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
   # mysql:
   #   image: mysql
   #   env_file:
