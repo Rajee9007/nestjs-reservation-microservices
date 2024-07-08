@@ -1,15 +1,20 @@
 import { ApolloGatewayDriverConfig, ApolloGatewayDriver } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerModule } from '@app/common';
+import { AUTH_SERVICE, LoggerModule } from '@app/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { IntrospectAndCompose } from '@apollo/gateway';
+import { IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { authContext } from './auth.contex';
 
 @Module({
   imports: [
     GraphQLModule.forRootAsync<ApolloGatewayDriverConfig>({
       driver: ApolloGatewayDriver,
       useFactory: (configService: ConfigService) => ({
+        server: {
+          context: authContext,
+        },
         gateway: {
           supergraphSdl: new IntrospectAndCompose({
             subgraphs: [
@@ -19,10 +24,34 @@ import { IntrospectAndCompose } from '@apollo/gateway';
               },
             ],
           }),
+          buildService({ url }) {
+            return new RemoteGraphQLDataSource({
+              url,
+              willSendRequest({ request, context }) {
+                request.http.headers.set(
+                  'user',
+                  context.user ? JSON.stringify(context.user) : null,
+                );
+              },
+            });
+          },
         },
       }),
       inject: [ConfigService],
     }),
+    ClientsModule.registerAsync([
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.getOrThrow('AUTH_HOST'),
+            port: configService.getOrThrow('AUTH_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
