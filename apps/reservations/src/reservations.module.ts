@@ -46,10 +46,10 @@ import { ReservationEntity } from './models/reservation.entity';
       {
         name: AUTH_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.RMQ,
+          transport: Transport.TCP,
           options: {
-            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
-            queue: 'auth',
+            host: configService.get('AUTH_HOST'),
+            port: configService.get('AUTH_PORT'),
           },
         }),
         inject: [ConfigService],
