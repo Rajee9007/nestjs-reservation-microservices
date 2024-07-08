@@ -4,26 +4,33 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcryptjs';
 import { GetUserDto } from './dto/get-user.dto';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     await this.validateCreateUserDto(createUserDto);
 
-    return this.usersRepository.create({
-      ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 10),
+    return this.prismaService.user.create({
+      data: {
+        email: createUserDto.email,
+        roles: createUserDto.roles,
+        password: await bcrypt.hash(createUserDto.password, 10),
+      },
     });
   }
 
   private async validateCreateUserDto(createUserDto: CreateUserDto) {
     try {
-      await this.usersRepository.findOne({ email: createUserDto.email });
+      await this.prismaService.user.findFirstOrThrow({
+        where: {
+          email: createUserDto.email,
+        },
+      });
     } catch (err) {
       return;
     }
@@ -32,7 +39,9 @@ export class UsersService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.usersRepository.findOne({ email });
+    const user = await this.prismaService.user.findFirstOrThrow({
+      where: { email },
+    });
     const passwordIsValid =
       user && (await bcrypt.compare(password, user.password));
 
@@ -44,10 +53,12 @@ export class UsersService {
   }
 
   async getUser(getUserDto: GetUserDto) {
-    return this.usersRepository.findOne(getUserDto);
+    return this.prismaService.user.findUniqueOrThrow({
+      where: { id: +getUserDto.id },
+    });
   }
 
   async findAll() {
-    return this.usersRepository.find({});
+    return this.prismaService.user.findMany();
   }
 }

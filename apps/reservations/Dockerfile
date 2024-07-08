@@ -17,6 +17,8 @@ RUN yarn prisma generate
 COPY apps/reservations apps/reservations
 COPY libs libs
 
+RUN cd apps/reservations && yarn install
+
 RUN yarn build reservations
 
 FROM node:alpine As production
