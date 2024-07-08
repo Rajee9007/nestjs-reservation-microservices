@@ -1,4 +1,3 @@
-import { User } from '.prisma/client';
 import {
   Args,
   Field,
@@ -11,14 +10,12 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @ObjectType()
-class UserDocument implements User {
+class UserDocument {
   @Field()
   id: number;
 
   @Field()
   email: string;
-
-  password: string;
 
   @Field(() => [String], { nullable: true, defaultValue: [] })
   roles: string[];

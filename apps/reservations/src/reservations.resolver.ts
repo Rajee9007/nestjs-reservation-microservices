@@ -9,10 +9,9 @@ import {
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CurrentUser, User } from '@app/common';
-import { Reservation } from '@prisma/client';
 
 @ObjectType()
-class ReservationDocument implements Reservation {
+class ReservationDocument {
   @Field()
   id: number;
   @Field()
