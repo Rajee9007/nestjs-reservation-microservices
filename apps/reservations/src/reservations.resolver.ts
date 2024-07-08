@@ -1,8 +1,35 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { ReservationDocument } from './models/reservation.schema';
+import {
+  Args,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from '@nestjs/graphql';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
-import { CurrentUser, UserDto } from '@app/common';
+import { CurrentUser, User } from '@app/common';
+import { Reservation } from '@prisma/client';
+
+@ObjectType()
+class ReservationDocument implements Reservation {
+  @Field()
+  id: number;
+  @Field()
+  timestamp: Date;
+
+  @Field()
+  startDate: Date;
+
+  @Field()
+  endDate: Date;
+
+  @Field()
+  userId: number;
+
+  @Field()
+  invoiceId: string;
+}
 
 @Resolver(() => ReservationDocument)
 export class ReservationsResolver {
@@ -12,7 +39,7 @@ export class ReservationsResolver {
   createReservation(
     @Args('createReservationInput')
     createReservationInput: CreateReservationDto,
-    @CurrentUser() user: UserDto,
+    @CurrentUser() user: User,
   ) {
     return this.reservationsService.create(createReservationInput, user);
   }
@@ -23,12 +50,12 @@ export class ReservationsResolver {
   }
 
   @Query(() => ReservationDocument, { name: 'reservation' })
-  findOne(@Args('id', { type: () => String }) id: string) {
+  findOne(@Args('id', { type: () => Number }) id: number) {
     return this.reservationsService.findOne(id);
   }
 
   @Mutation(() => ReservationDocument)
-  removeReservation(@Args('id', { type: () => String }) id: string) {
+  removeReservation(@Args('id', { type: () => Number }) id: number) {
     return this.reservationsService.remove(id);
   }
 }

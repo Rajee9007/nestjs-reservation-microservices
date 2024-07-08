@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: ./apps/reservations/Dockerfile
       target: development
-    command: yarn start:dev reservations
+    command: sh -c "yarn prisma migrate deploy --schema apps/reservations/prisma/schema.prisma && yarn prisma generate --schema apps/reservations/prisma/schema.prisma && yarn start:dev reservations"
+    depends_on:
+      - postgres
     env_file:
       - ./apps/reservations/.env
     ports:
