@@ -2,14 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
-import {
-  DatabaseMongoModule,
-  DatabaseTypeOrmlModule,
-  RoleEntity,
-  UserDocument,
-  UserEntity,
-  UserSchema,
-} from '@app/common';
+import { DatabaseMongoModule, UserDocument, UserSchema } from '@app/common';
 
 @Module({
   imports: [
@@ -17,8 +10,8 @@ import {
     DatabaseMongoModule.forFeature([
       { name: UserDocument.name, schema: UserSchema },
     ]),
-    DatabaseTypeOrmlModule,
-    DatabaseTypeOrmlModule.forFeature([UserEntity, RoleEntity]),
+    // DatabaseTypeOrmlModule,
+    // DatabaseTypeOrmlModule.forFeature([UserEntity, RoleEntity]),
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],

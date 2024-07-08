@@ -1,0 +1,14 @@
+{
+  "name": "gateway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/gateway": "^2.8.2",
+    "@apollo/server": "^4.10.4",
+    "@apollo/subgraph": "^2.8.2",
+    "@nestjs/apollo": "^12.2.0",
+    "@nestjs/graphql": "^12.2.0",
+    "graphql": "^16.9.0"
+  }
+}

@@ -4,15 +4,11 @@ import { ReservationsController } from './reservations.controller';
 import {
   AUTH_SERVICE,
   DatabaseMongoModule,
-  DatabaseTypeOrmlModule,
   HealthModule,
   LoggerModule,
   PAYMENTS_SERVICE,
 } from '@app/common';
-import {
-  ReservationsRepository,
-  ReservationsTypeOrmRepository,
-} from './reservations.repository';
+import { ReservationsRepository } from './reservations.repository';
 import {
   ReservationDocument,
   ReservationSchema,
@@ -20,7 +16,6 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ReservationEntity } from './models/reservation.entity';
 
 @Module({
   imports: [
@@ -28,8 +23,8 @@ import { ReservationEntity } from './models/reservation.entity';
     DatabaseMongoModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
-    DatabaseTypeOrmlModule,
-    DatabaseTypeOrmlModule.forFeature([ReservationEntity]),
+    // DatabaseTypeOrmlModule,
+    // DatabaseTypeOrmlModule.forFeature([ReservationEntity]),
     LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -57,10 +52,10 @@ import { ReservationEntity } from './models/reservation.entity';
       {
         name: PAYMENTS_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.RMQ,
+          transport: Transport.TCP,
           options: {
-            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
-            queue: 'payments',
+            host: configService.get('PAYMENTS_HOST'),
+            port: configService.get('PAYMENTS_PORT'),
           },
         }),
         inject: [ConfigService],
@@ -72,7 +67,7 @@ import { ReservationEntity } from './models/reservation.entity';
   providers: [
     ReservationsService,
     ReservationsRepository,
-    ReservationsTypeOrmRepository,
+    // ReservationsTypeOrmRepository,
   ],
 })
 export class ReservationsModule {}
